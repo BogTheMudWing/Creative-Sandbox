@@ -1,0 +1,25 @@
+name: Creative-Sandbox
+version: '${project.version}'
+main: io.github.stonley890.creativesandbox.Main
+api-version: '1.20'
+description: Allow players to use creative mode safely.
+author: Stonley890
+
+commands:
+  sandbox:
+    description: Manage Creative Mode sandboxing.
+    usage: /<command> [<player> [on|off]]
+    permission: dreamvisitor.sandbox
+
+permissions:
+  sandbox.manage:
+    description: Allows for sandbox management.
+    default: op
+  sandbox.containers:
+    description: Allow sandboxed players to use containers.
+    default: op
+  sandbox.dropitems:
+    description: Allow sandboxed players to drop items.
+    default: op
+  sandbox.spawneggs:
+    description: Allow sandboxed players to use spawn eggs.
