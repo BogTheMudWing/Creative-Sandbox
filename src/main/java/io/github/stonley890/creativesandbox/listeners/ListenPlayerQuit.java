@@ -1,6 +1,6 @@
 package io.github.stonley890.creativesandbox.listeners;
 
-import io.github.stonley890.creativesandbox.Main;
+import io.github.stonley890.creativesandbox.CreativeSandbox;
 import io.github.stonley890.creativesandbox.data.PlayerMemory;
 import io.github.stonley890.creativesandbox.data.PlayerUtility;
 import io.github.stonley890.creativesandbox.functions.Sandbox;
@@ -26,7 +26,7 @@ public class ListenPlayerQuit implements Listener {
         if (memory.sandbox) {
             for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
                 if (onlinePlayer.hasPermission("dreamvisitor.sandbox"))
-                    onlinePlayer.sendMessage(Main.PREFIX + event.getPlayer() + " left while in sandbox mode.");
+                    onlinePlayer.sendMessage(CreativeSandbox.PREFIX + event.getPlayer().getName() + " left while in sandbox mode.");
             }
         }
 
@@ -37,7 +37,7 @@ public class ListenPlayerQuit implements Listener {
             Bukkit.getLogger().severe("Unable to save player memory! Does the server have write access? Player memory will remain in memory.");
         }
 
-        Bukkit.getScheduler().runTask(Main.getPlugin(), () -> {
+        Bukkit.getScheduler().runTask(CreativeSandbox.getPlugin(), () -> {
 
             // Check for sandboxed players
             boolean moderatorOnline = false;

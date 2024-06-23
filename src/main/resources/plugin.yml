@@ -1,15 +1,15 @@
 name: Creative-Sandbox
 version: '${project.version}'
-main: io.github.stonley890.creativesandbox.Main
+main: io.github.stonley890.creativesandbox.CreativeSandbox
 api-version: '1.20'
 description: Allow players to use creative mode safely.
 author: Stonley890
 
-commands:
-  sandbox:
-    description: Manage Creative Mode sandboxing.
-    usage: /<command> [<player> [on|off]]
-    permission: dreamvisitor.sandbox
+#commands:
+#  sandbox:
+#    description: Manage Creative Mode sandboxing.
+#    usage: /<command> [<player> [on|off]]
+#    permission: dreamvisitor.sandbox
 
 permissions:
   sandbox.manage:

@@ -1,6 +1,6 @@
 package io.github.stonley890.creativesandbox.data;
 
-import io.github.stonley890.creativesandbox.Main;
+import io.github.stonley890.creativesandbox.CreativeSandbox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class PlayerUtility {
     }
 
     private static @NotNull String getPlayerPath(UUID uuid) {
-        return Main.getPlugin().getDataFolder().getAbsolutePath() + "/player/" + uuid + ".yml";
+        return CreativeSandbox.getPlugin().getDataFolder().getAbsolutePath() + "/player/" + uuid + ".yml";
     }
 
 }

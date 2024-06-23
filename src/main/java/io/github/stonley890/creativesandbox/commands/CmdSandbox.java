@@ -1,6 +1,10 @@
 package io.github.stonley890.creativesandbox.commands;
 
-import io.github.stonley890.creativesandbox.Main;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandPermission;
+import dev.jorel.commandapi.arguments.BooleanArgument;
+import dev.jorel.commandapi.arguments.EntitySelectorArgument;
+import io.github.stonley890.creativesandbox.CreativeSandbox;
 import io.github.stonley890.creativesandbox.data.PlayerMemory;
 import io.github.stonley890.creativesandbox.data.PlayerUtility;
 import io.github.stonley890.creativesandbox.functions.Sandbox;
@@ -10,99 +14,74 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
-public class CmdSandbox implements CommandExecutor {
+public class CmdSandbox {
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+    @NotNull
+    public static CommandAPICommand getCommand() {
+        return new CommandAPICommand("sandbox")
+                .withHelp("Manage the sandbox.", "Manage players' access to Sandbox Mode.")
+                .withPermission(CommandPermission.fromString("dreamvisitor.sandbox"))
+                .withOptionalArguments(new EntitySelectorArgument.ManyPlayers("players"))
+                .withOptionalArguments(new BooleanArgument("state"))
+                .executesNative((sender, args) -> {
+                    Collection<Player> players = (Collection<Player>) args.get("players");
+                    if (players == null) {
+                        List<Player> sandboxedPlayers = new ArrayList<>();
 
-        if (args.length == 0) {
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            PlayerMemory memory = PlayerUtility.getPlayerMemory(player.getUniqueId());
+                            if (memory.sandbox) sandboxedPlayers.add(player);
+                        }
 
-            ComponentBuilder builder = new ComponentBuilder();
-            builder.append(Main.PREFIX).append("Creative Sandbox ").append(Main.VERSION).append(" - Stonle890\n").color(ChatColor.BLUE)
-                    .append("[").color(ChatColor.GRAY).append("Download Page").event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Open the Modrinth page"))).event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/stonley890/creative-sandbox")).underlined(true).color(ChatColor.DARK_AQUA).append("] ").reset().color(ChatColor.GRAY)
-                    .append("[").color(ChatColor.GRAY).append("Bugs/Features").event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Open GitHub issues page"))).event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/stonley890/creative-sandbox/issues")).underlined(true).color(ChatColor.DARK_AQUA).append("] ").reset().color(ChatColor.GRAY)
-                    .append("[").color(ChatColor.GRAY).append("Source Code").event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Open the Git repository"))).event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/stonley890/creative-sandbox")).underlined(true).color(ChatColor.DARK_AQUA).append("]\n").reset().color(ChatColor.GRAY);
+                        if (sandboxedPlayers.isEmpty()) {
+                            sender.sendMessage(CreativeSandbox.PREFIX + "No players currently online are in sandbox mode. Use /sandbox <player> [true|false] to toggle sandbox mode.");
+                        }
 
-            List<Player> sandboxedPlayers = new ArrayList<>();
+                        ComponentBuilder messageBuilder = new ComponentBuilder(CreativeSandbox.PREFIX + "Players currently sandboxed:\n");
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                PlayerMemory memory = PlayerUtility.getPlayerMemory(player.getUniqueId());
-                if (memory.sandbox) sandboxedPlayers.add(player);
-            }
+                        HoverEvent tooltip = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to remove."));
 
-            if (sandboxedPlayers.isEmpty()) {
-                builder.append("No players currently online are in sandbox mode. Use /sandbox <player> [on|off] to toggle sandbox mode.").reset();
-                sender.spigot().sendMessage(builder.create());
-                return true;
-            }
+                        for (Player player : sandboxedPlayers) {
+                            Location location = player.getLocation();
+                            messageBuilder.append(player.getName()).color(ChatColor.YELLOW)
+                                    .append(" [").color(ChatColor.WHITE)
+                                    .append("Remove").color(ChatColor.RED)
+                                    .event(tooltip).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sandbox " + player.getName() + " false"))
+                                    .append("]\n").color(ChatColor.WHITE).event((ClickEvent) null)
+                                    .append(String.valueOf(location.getBlockX())).append(", ").append(String.valueOf(location.getBlockY())).append(", ").append(String.valueOf(location.getBlockZ()))
+                                    .append(" in world ").append(Objects.requireNonNull(location.getWorld()).getName()).append(".\n\n");
+                        }
 
-            ComponentBuilder messageBuilder = new ComponentBuilder(Main.PREFIX + "Players currently sandboxed:\n");
-
-            HoverEvent tooltip = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to remove."));
-
-            for (Player player : sandboxedPlayers) {
-                messageBuilder.append("[").color(ChatColor.WHITE)
-                        .append(player.getName()).color(ChatColor.YELLOW)
-                        .event(tooltip).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sandbox " + player.getName() + " off"))
-                        .append("] ").color(ChatColor.WHITE).event((ClickEvent) null);
-            }
-
-            builder.append(messageBuilder.create());
-
-            sender.spigot().sendMessage(builder.create());
-            return true;
-
-        } else if (args.length < 3) {
-
-            String targetString = args[0];
-
-            List<Entity> targetedEntities = Bukkit.selectEntities(sender, targetString);
-            List<Player> targetedPlayers = new ArrayList<>();
-
-            for (Entity targetedEntity : targetedEntities) {
-                if (!(targetedEntity instanceof Player)) {
-                    sender.sendMessage(Main.PREFIX + ChatColor.RED + "This command only applies to players!");
-                    return true;
-                }
-                targetedPlayers.add((Player) targetedEntity);
-            }
-
-            if (args.length == 2) {
-                // On or off
-                if (args[1].equals("on")) {
-
-                    targetedPlayers.forEach(Sandbox::enableSandbox);
-                    sender.sendMessage(Main.PREFIX + "Enabled sandbox mode for " + targetedPlayers.size() + " players.");
-
-                } else if (args[1].equals("off")) {
-
-                    targetedPlayers.forEach(Sandbox::disableSandbox);
-                    sender.sendMessage(Main.PREFIX + "Disabled sandbox mode for " + targetedPlayers.size() + " players.");
-
-                } else {
-                    sender.sendMessage(Main.PREFIX + ChatColor.RED + "Invalid argument! /sandbox [player] [on|off]");
-                }
-            } else {
-                // Toggle
-                targetedPlayers.forEach(player -> {
-                    if (PlayerUtility.getPlayerMemory(player.getUniqueId()).sandbox) Sandbox.disableSandbox(player);
-                    else Sandbox.enableSandbox(player);
+                        sender.spigot().sendMessage(messageBuilder.create());
+                    } else {
+                        Object stateArg = args.get("state");
+                        if (stateArg == null) {
+                            players.forEach(player -> {
+                                if (PlayerUtility.getPlayerMemory(player.getUniqueId()).sandbox) Sandbox.disableSandbox(player);
+                                else Sandbox.enableSandbox(player);
+                            });
+                            sender.sendMessage(CreativeSandbox.PREFIX + "Toggled sandbox mode for " + players.size() + " players.");
+                        } else {
+                            boolean sandboxState = (boolean) stateArg;
+                            if (sandboxState) {
+                                players.forEach(Sandbox::enableSandbox);
+                                sender.sendMessage(CreativeSandbox.PREFIX + "Enabled sandbox mode for " + players.size() + " players.");
+                            } else {
+                                players.forEach(Sandbox::disableSandbox);
+                                sender.sendMessage(CreativeSandbox.PREFIX + "Disabled sandbox mode for " + players.size() + " players.");
+                            }
+                        }
+                    }
                 });
-                sender.sendMessage(Main.PREFIX + "Toggled sandbox mode for " + targetedPlayers.size() + " players.");
-            }
-        }
-
-        return true;
     }
 
 }

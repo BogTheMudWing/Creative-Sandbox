@@ -1,6 +1,6 @@
 package io.github.stonley890.creativesandbox.listeners;
 
-import io.github.stonley890.creativesandbox.Main;
+import io.github.stonley890.creativesandbox.CreativeSandbox;
 import io.github.stonley890.creativesandbox.data.PlayerMemory;
 import io.github.stonley890.creativesandbox.data.PlayerUtility;
 import io.github.stonley890.creativesandbox.functions.Sandbox;
@@ -23,7 +23,7 @@ public class ListenPlayerJoin implements Listener {
             for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
                 if (onlinePlayer.hasPermission("dreamvisitor.sandbox")) {
                     sandboxerOnline = true;
-                    onlinePlayer.sendMessage(Main.PREFIX + event.getPlayer().getName() + " is currently in sandbox mode.");
+                    onlinePlayer.sendMessage(CreativeSandbox.PREFIX + event.getPlayer().getName() + " is currently in sandbox mode.");
                 }
             }
             if (!sandboxerOnline) {
