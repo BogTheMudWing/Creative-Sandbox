@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.block.Container;
 import org.bukkit.block.DecoratedPot;
+import org.bukkit.block.EnderChest;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -82,7 +83,9 @@ public class Sandbox implements Listener {
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             assert event.getClickedBlock() != null;
             if (!player.hasPermission("sandbox.containers") &&
-                    ((event.getClickedBlock().getState() instanceof Container && !player.isSneaking()) || (event.getClickedBlock().getState() instanceof DecoratedPot)))
+                    ((event.getClickedBlock().getState() instanceof Container && !player.isSneaking())
+                            || (event.getClickedBlock().getState() instanceof DecoratedPot)
+                            || (event.getClickedBlock().getState() instanceof EnderChest)))
                 event.setCancelled(true);
             else if (!player.hasPermission("sandbox.spawneggs") && (event.getItem() != null && event.getItem().getItemMeta() instanceof SpawnEggMeta))
                 event.setCancelled(true);
