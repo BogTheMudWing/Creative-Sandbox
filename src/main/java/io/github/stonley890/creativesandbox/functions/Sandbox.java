@@ -18,6 +18,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,7 +73,10 @@ public class Sandbox implements Listener {
     public void onPlayerDropItem(@NotNull PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         PlayerMemory memory = PlayerUtility.getPlayerMemory(player.getUniqueId());
-        if (memory.sandbox && !player.hasPermission("sandbox.dropitems")) event.setCancelled(true);
+        if (memory.sandbox && !player.hasPermission("sandbox.dropitems")) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You can't drop items while in Sandbox Mode.");
+        }
     }
 
     @EventHandler
@@ -85,10 +89,13 @@ public class Sandbox implements Listener {
             if (!player.hasPermission("sandbox.containers") &&
                     ((event.getClickedBlock().getState() instanceof Container && !player.isSneaking())
                             || (event.getClickedBlock().getState() instanceof DecoratedPot)
-                            || (event.getClickedBlock().getState() instanceof EnderChest)))
+                            || (event.getClickedBlock().getState() instanceof EnderChest))) {
                 event.setCancelled(true);
-            else if (!player.hasPermission("sandbox.spawneggs") && (event.getItem() != null && event.getItem().getItemMeta() instanceof SpawnEggMeta))
+                player.sendMessage(ChatColor.RED + "You can't open inventories while in Sandbox Mode.");
+            } else if (!player.hasPermission("sandbox.spawneggs") && (event.getItem() != null && event.getItem().getItemMeta() instanceof SpawnEggMeta)) {
                 event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You can't use spawn eggs while in Sandbox Mode.");
+            }
         }
     }
 
@@ -102,6 +109,11 @@ public class Sandbox implements Listener {
                 if (onlinePlayer.hasPermission("dreamvisitor.sandbox")) {
                     onlinePlayer.sendMessage(CreativeSandbox.PREFIX + event.getPlayer().getName() + " interacted with an item frame with held item " + Objects.requireNonNull(player.getInventory().getItem(event.getHand())).getType());
                 }
+            }
+        } else {
+            if (!player.hasPermission("sandbox.containers") && event.getRightClicked() instanceof InventoryHolder) {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You can't open inventories while in Sandbox Mode.");
             }
         }
     }
