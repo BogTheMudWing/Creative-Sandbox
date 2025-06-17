@@ -32,3 +32,7 @@ sandbox
 ## Demo
 Load the GIF file below to see it in action!
 ![Demo video](./demo.GIF)
+
+---
+
+[![BogTheMudWing](https://nextcloud.macver.org/apps/files_sharing/publicpreview/jyWLnm4i724mxXg?file=/&fileId=61792&x=3390&y=1906&a=true&etag=c43260166526abc326861afd5244df8e)](https://blog.macver.org/about-me)
